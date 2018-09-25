@@ -361,9 +361,9 @@ static NSString* toBase64(NSData* data) {
         {
             if ((options.allowsEditing == NO) && (options.targetSize.width <= 0) && (options.targetSize.height <= 0) && (options.correctOrientation == NO) && (([options.quality integerValue] == 100) || (options.sourceType != UIImagePickerControllerSourceTypeCamera))){
                 // use image unedited as requested , don't resize
-                data = UIImageJPEGRepresentation(image, 1.0);
+                data = UIImageJPEGRepresentation(image, 0.8);
             } else {
-                data = UIImageJPEGRepresentation(image, [options.quality floatValue] / 100.0f);
+                data = UIImageJPEGRepresentation(image, 0.8);
             }
 
             if (options.usesGeolocation) {
@@ -471,18 +471,20 @@ static NSString* toBase64(NSData* data) {
         case DestinationTypeFileUri:
         {
             image = [self retrieveImage:info options:options];
-            NSData* data = [self processImage:image info:info options:options];
-            if (data) {
-
-                NSString* extension = options.encodingType == EncodingTypePNG? @"png" : @"jpg";
-                NSString* filePath = [self tempFilePath:extension];
-                NSError* err = nil;
-
                 // save file
-                if (![data writeToFile:filePath options:NSAtomicWrite error:&err]) {
-                    result = [CDVPluginResult resultWithStatus:CDVCommandStatus_IO_EXCEPTION messageAsString:[err localizedDescription]];
-                } else {
-                    result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:[[self urlTransformer:[NSURL fileURLWithPath:filePath]] absoluteString]];
+                if (@available(iOS 11.0, *)) {
+                    result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:[[info valueForKey:UIImagePickerControllerImageURL] absoluteString]];
+                }else{
+                    NSData* data = [self processImage:image info:info options:options];
+                    if (data) {
+                        NSString* extension = options.encodingType == EncodingTypePNG? @"png" : @"jpg";
+                        NSString* filePath = [self tempFilePath:extension];
+                        NSError* err = nil;
+                        if (![data writeToFile:filePath options:NSAtomicWrite error:&err]) {
+                            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_IO_EXCEPTION messageAsString:[err localizedDescription]];
+                        } else {
+                            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:[[self urlTransformer:[NSURL fileURLWithPath:filePath]] absoluteString]];
+                        }
                 }
             }
         }
