@@ -472,7 +472,7 @@ static NSString* toBase64(NSData* data) {
         {
             image = [self retrieveImage:info options:options];
                 // save file
-                if (@available(iOS 11.0, *)) {
+                if (@available(iOS 11.0, *) && [info valueForKey:UIImagePickerControllerImageURL] != nil) {
                     result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:[[info valueForKey:UIImagePickerControllerImageURL] absoluteString]];
                 }else{
                     NSData* data = [self processImage:image info:info options:options];
