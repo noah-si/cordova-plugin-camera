@@ -373,8 +373,10 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
         String title = GET_PICTURE;
         croppedUri = null;
         if (this.mediaType == PICTURE) {
-            intent.setType("image/*");
-            if (this.allowEdit) {
+                String[] mimeTypes = {"image/jpeg", "image/png"};
+                intent.setType("image/*");
+                intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+               if (this.allowEdit) {
                 intent.setAction(Intent.ACTION_PICK);
                 intent.putExtra("crop", "true");
                 if (targetWidth > 0) {
